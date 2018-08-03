@@ -1,0 +1,13 @@
+Package: easynlp
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 1.0
+Depends: tm, text2vec, data.table, gsubfn, stringr
+Date: 2018-07-24
+Author: Adrian Apaza
+Maintainer: <apaza@stanford.edu>
+Description: More about what it does (maybe more than one line)
+License: Copyright (c) 2018 Adrian Apaza
+LazyData: TRUE
+RoxygenNote: 6.0.1.9000
+
