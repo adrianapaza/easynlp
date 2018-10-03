@@ -4,16 +4,20 @@
 \alias{CreateEmbeddingMatrix}
 \title{Create a matrix of embeddings}
 \usage{
-CreateEmbeddingMatrix(DocTermMatrix, Embeddings, Vocabulary, LogInverse)
+CreateEmbeddingMatrix(DocTermMatrix, Embeddings, Vocabulary,
+  LogInverse = F, Variance = F)
 }
 \arguments{
 \item{DocTermMatrix}{The document term matrix}
 
 \item{Embeddings}{The matrix of embeddings (e.g. Glove) where rows are words}
 
-\item{Vocabulary}{The Vocab list or dataframe from Create_Vocab_DocumentTermMatrix}
+\item{Vocabulary}{The Vocab list or dataframe from Create_Vocab_DocumentTermMatrix;
+needed if using LogInverse}
 
 \item{LogInverse}{whether to weight words using LogInverse; defaults to FALSE}
+
+\item{Variance}{whether to return embedding variance; defaults to FALSE}
 }
 \value{
 Returns the average embedding of each document for each embedding dimension.
