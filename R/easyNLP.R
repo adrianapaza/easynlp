@@ -140,17 +140,15 @@ train_embeddings<-function(vocab, it_all, vocab_vectorizer,
   ###Now let's get a term co-occurence matrix, (this gets's all terms withn N L terms of a given term in each description)
   #we use 'symmetric' to get terms both preceding and after the given term
   tcm <- create_tcm(it_all, vocab_vectorizer, skip_grams_window = window,
-                    skip_grams_window_context = 'symmetric')
-  ?create_tcm
+                    skip_grams_window_context = 'symmetric');
 #now use glove trained on our corpus of descriptions. and use both 100 dimensions and 200
   ##see page 4 of glvoe paper for more info on this
-glove = GlobalVectors$new(word_vectors_size = dimensions, vocabulary = vocab, x_max = max_cooccur)
-?glove
-wv_main = glove$fit_transform(tcm, n_iter = max_iters, convergence_tol = 0.001)
+glove = GlobalVectors$new(word_vectors_size = dimensions, vocabulary = vocab, x_max = max_cooccur);
+wv_main = glove$fit_transform(tcm, n_iter = max_iters, convergence_tol = 0.001);
 
-wv_context = glove$components
-word_vectors = wv_main + t(wv_context)
-GloveDataFrame<-as.data.frame.matrix(word_vectors)
+wv_context = glove$components;
+word_vectors = wv_main + t(wv_context);
+GloveDataFrame<-as.data.frame.matrix(word_vectors);
 ##order it alphabetically
 GloveDataFrame<-GloveDataFrame[order(rownames(GloveDataFrame)),]
 return(GloveDataFrame)
@@ -291,7 +289,6 @@ remove_gendered_words<-function(x,remove_familial=T) {
 #'
 find_best_neural_net<-function(Embeddings, dependent_var, max_minutes=10, stopping_tol=0.005,n_folds=5){
   library(h2o)
-  h2
   h2o.init()
   NeuralData<-cbind(Embeddings,dependent_var)
   NeuralData.h2o <- as.h2o(NeuralData)
