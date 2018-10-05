@@ -21,10 +21,11 @@ needed if using LogInverse}
 }
 \value{
 Returns the average embedding of each document for each embedding dimension.
+If Variance requested then it is appended.
 }
 \description{
 Create a matrix of embeddings
 }
 \examples{
-CreateEmbeddingMatrix(MyDocTermMatrix, Glove.200, Vocab, LogInverse=T)
+CreateEmbeddingMatrix(MyDocTermMatrix, Glove.200, Vocab, LogInverse=F,Variance=F)
 }

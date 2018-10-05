@@ -173,9 +173,10 @@ return(GloveDataFrame)
 #' @param LogInverse whether to weight words using LogInverse; defaults to FALSE
 #' @param Variance whether to return embedding variance; defaults to FALSE
 #' @return Returns the average embedding of each document for each embedding dimension.
+#' If Variance requested then it is appended.
 #' @export
 #' @examples
-#' CreateEmbeddingMatrix(MyDocTermMatrix, Glove.200, Vocab, LogInverse=T)
+#' CreateEmbeddingMatrix(MyDocTermMatrix, Glove.200, Vocab, LogInverse=F,Variance=F)
 CreateEmbeddingMatrix <- function(DocTermMatrix,Embeddings,Vocabulary,LogInverse=F,Variance=F) {
   ##Turn the matrix of all the words into a dataframe.
   DTMALL<-as.data.frame.matrix(DocTermMatrix)
@@ -187,14 +188,10 @@ CreateEmbeddingMatrix <- function(DocTermMatrix,Embeddings,Vocabulary,LogInverse
   keep<-rownames(Embeddings)
   DTMALLOverlap<-DTMALL[,colnames(DTMALL) %in% keep ]
 
-
   #make sure they are ordered alphabetically so that the words overlap
   EmbeddingsDataFrame<-Embeddings[order(rownames(Embeddings)),]
   #order the other dataframe  alphabetically
   DTMALLOverlap<-DTMALLOverlap[,order(colnames(DTMALLOverlap))]
-  #Get the average word use per document
-  #DTMALLOverlapMeans<-as.matrix(DTMALLOverlap)/rowSums(DTMALLOverlap)
-
 
   if (LogInverse==T) {
     ##get voacabulary pruned
@@ -204,23 +201,24 @@ CreateEmbeddingMatrix <- function(DocTermMatrix,Embeddings,Vocabulary,LogInverse
     nn=nrow(DTMALLOverlap)
     ##get weighting of words by inverse frequency
     inverseLogDocumentCount<-log(nn/ vocabAllPruned$doc_count)
-
     ##get the term glove matrix weighted by inverse log frequency
     InverseLogDocFreqMatrix<-as.matrix(inverseLogDocumentCount) ##this is a column matrix
     ##get the inverse weights
     DTMInverseWeights<-apply(DTMALLOverlap, 1, function(DTMALLOverlap)mapply(InverseLogDocFreqMatrix, DTMALLOverlap, FUN="*"))
-
+    DTMInverseWeights<-t(DTMInverseWeights)
     ###old junk: TMInverseWeightedMeans<-apply(DTMALLOverlapMeans300, 1, function(.DTMALLOverlapMeans300)mapply(InverseLogDocFreqMatrix, .DTMALLOverlapMeans300, FUN="*"))
-    MeanInverseEmbeddings<- (as.matrix(t(DTMInverseWeights))/rowSums(DTMInverseWeights))%*%as.matrix(Embeddings)
+    MeanInverseEmbeddings<- (as.matrix((DTMInverseWeights))/rowSums(DTMInverseWeights))%*%as.matrix(Embeddings)
+    print(dim(DTMInverseWeights))
 
     ##make sure raw weights are adjusted before variance calcu
     if (Variance==T){
-      ###old junkMeanOverlap<- as.matrix(t(DTMInverseWeightedVariance))%*%as.matrix(Embeddings)
-      DTMInverseSquare<- (as.matrix(t(DTMInverseWeights))^2/rowSums(DTMInverseWeights))%*%as.matrix(Embeddings)
-      VarianceEmbeddings<-DTMInverseSquare-MeanInverseEmbeddings^2
-      return(list("Means"=as.data.frame(MeanInverseEmbeddings),"Variance"=as.data.frame(VarianceEmbeddings)))
+      squareembed<-as.matrix((DTMInverseWeights))%*%(as.matrix(Embeddings)^2)
+      EmbeddingVariance<-(squareembed/(rowSums((DTMInverseWeights))))-MeanInverseEmbeddings^2
+      EmbeddingVariance<-(squareembed/(rowSums(DTMALLOverlap)))-(MeanInverseEmbeddings^2)
+
+      return(cbind(MeanInverseEmbeddings,EmbeddingVariance))
     }
-    else {
+    if (Variance==F) {
       return(as.data.frame(MeanInverseEmbeddings))
     }
   }
@@ -232,11 +230,11 @@ CreateEmbeddingMatrix <- function(DocTermMatrix,Embeddings,Vocabulary,LogInverse
     AverageVector<-as.data.frame(MeanOverlap)
     ##return variance
     if (Variance==T){
-      DTMALLVariance<-as.data.frame((as.matrix(DTMALLOverlap)^2-DTMALLOverlapMeans300^2))
-
-      return(list("Means"=AverageVector,"Variance"=DTMALLVariance))
+      squareembed<-as.matrix(DTMALLOverlap)%*%(as.matrix(Embeddings)^2)
+      EmbeddingVariance<-(squareembed/(rowSums(DTMALLOverlap)))-(MeanOverlap^2)
+      return(cbind(AverageVector,EmbeddingVariance))
     }
-    else {
+    if (Variance==F){
       return(AverageVector)
     }
   }
