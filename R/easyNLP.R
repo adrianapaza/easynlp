@@ -225,8 +225,9 @@ CreateEmbeddingMatrix <- function(DocTermMatrix,Embeddings,Vocabulary,LogInverse
     }
   }
   if (LogInverse==F) {
+    DTMALLOverlapMeans<-as.matrix(DTMALLOverlap)/rowSums(DTMALLOverlap)
     ##Now multiply the matrices
-    MeanOverlap<- as.matrix(DTMALLOverlapMeans300)%*%as.matrix(Embeddings)
+    MeanOverlap<- as.matrix(DTMALLOverlapMeans)%*%as.matrix(Embeddings)
     ##multiply
     AverageVector<-as.data.frame(MeanOverlap)
     ##return variance
@@ -319,7 +320,7 @@ find_best_neural_net<-function(Embeddings, dependent_var, max_minutes=10, stoppi
                   class_sampling_factors = NULL, max_after_balance_size = 5,
                   max_runtime_secs = max_minutes*60, max_models = NULL,
                   stopping_metric = "logloss", stopping_tolerance = stopping_tol,
-                  stopping_rounds = 3, seed = NULL, project_name = NULL,
+                  stopping_rounds = 5, seed = NULL, project_name = NULL,
                   exclude_algos =  c("GLM", "GBM", "DRF","StackedEnsemble"),
                   keep_cross_validation_predictions = TRUE,
                   keep_cross_validation_models = TRUE,
